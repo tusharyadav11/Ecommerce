@@ -38,7 +38,7 @@ const userSchema = mongoose.userSchema(
 );
 // challenge 1 ie to encrypt the password -hooks
 userSchema.pre("save", async function(next){
-    if(!this.modified("password")) return next()
+    if(!this.ismodified("password")) return next()
     this.password= await bcrypt.hash(this.password,10)
 next()
 });
@@ -61,7 +61,18 @@ userSchema.methods={
                 expiresIn: config.JWT_EXPIRY
             }
         )
-    }
+    },
+    // forget password implementations 
+    generateforgotPasswordToken : function(){
+        const forgettoken = crypto.randomBytes(20).toString('hex');
+        // now there are two steps
+        // step 1 - send the token to the database
+        this.forgotPasswordToken= crypto.createHash("sha256").update(forgettoken).digest('hex')
+
+        this.forgotPasswordExpiry= Date.now()+ 20*60*1000;
+        // and step 2= return the value of the token to the user
+             return forgettoken 
+    },
 }
 export default mongoose.model("User",userSchema);
  
