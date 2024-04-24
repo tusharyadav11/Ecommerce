@@ -1,4 +1,5 @@
 import user from "../models/user";
+import user from "../models/user";
 import User from "../models/user";
 import asynchandler from '../services/asynchandler'
 import customError from '../utils/customError'
@@ -76,3 +77,16 @@ export const logout = asynchandler(async (req,res)=>{
         message: "logged out "
      })
 })
+
+export const forgotPassword= asynchandler(async(req,res))=>{
+    const {email} = req.body
+
+    const  user = await  User.findOne({email})
+    if(!user){
+        throw new customError("user is not found ", 404)
+    }
+    const resettoken = user.generateforgotPasswordToken()
+    await user.save({validateBeforeSave : false})
+
+    const resetURL = 
+}
