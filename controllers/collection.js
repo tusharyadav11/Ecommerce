@@ -11,7 +11,7 @@ if(!name){
 }
 
 // now taken the name and now we have to put it to the databsse
-   const collectionname=  await collections.create({
+   const collectionname=  await Collection.create({
         name 
     })
 
@@ -54,10 +54,18 @@ if(!name){
 
  // deleting the collection 
  export const deleteCollection = asynchandler(async(req,res)=>{
-
     const {id: collectionId} = req.params
-
     const collectionToDelete = await Collection.findByIdAndDelete(collectionId)
+    if(!collectionToDelete){
+        throw new customError('collection id is not found in the  database',400)
+    }
+
+    collectionToDelete.remove()    // just removing the allocated space 
+    res.status(200).json({
+        success: true,
+        message: 'collection deleted successfully  ',
+        
+    })
  })
 
 
