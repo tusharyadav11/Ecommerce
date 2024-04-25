@@ -68,5 +68,19 @@ if(!name){
     })
  })
 
+// user is asking for all the connections 
+export const getAllCollections = asynchandler(async(req,res)=>{
+   const collectionsAll=  await Collection.find()
 
+   if(!collectionsAll){
+    throw new customError('No Collections found ',400)
+   }
+   res.status(200).json({
+    status: true,
+    message: 'all the data collections ',
+    collectionsAll
+
+   })
+
+})
 
