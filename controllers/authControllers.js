@@ -144,3 +144,18 @@ res.status(200).json({
 })
 
 })
+
+// todo: create a controller for change password
+
+
+export const getProfile = asynchandler(async(req,res)=>{
+ const {user}= req
+ if(!user){
+    throw new customError('user not found' ,404)
+ }
+ res.status(200).json({
+    success: true,
+    user
+ })
+
+})
