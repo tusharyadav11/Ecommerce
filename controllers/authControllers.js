@@ -3,7 +3,7 @@ import user from "../models/user";
 import User from "../models/user";
 import asynchandler from '../services/asynchandler'
 import customError from '../utils/customError'
-
+import mailhelper from '../utils/mailhelper'  
 export const cookieOptions= {
     expires: new Date(Date.now()+ 3*24*60*60*1000),
     httpOnly: true
@@ -78,7 +78,7 @@ export const logout = asynchandler(async (req,res)=>{
      })
 })
 
-export const forgotPassword= asynchandler(async(req,res))=>{
+export const forgotPassword= asynchandler(async(req,res)=>{
     const {email} = req.body
 
     const  user = await  User.findOne({email})
@@ -88,5 +88,25 @@ export const forgotPassword= asynchandler(async(req,res))=>{
     const resettoken = user.generateforgotPasswordToken()
     await user.save({validateBeforeSave : false})
 
-    const resetURL = 
-}
+    const resetURL = `${req.protocol}://${req.get("host")}/api/auth/password/reset${resettoken}`
+   
+   const texturl = `your password url for reset password is \n\n${resetURL}\n\n`
+    try {
+        await mailhelper ({
+            email: user.email,
+            subject : "passwrid reset email for website",
+            text :texturl ,
+        })
+        res.status(200).json({
+            success: true,
+            message : ` email send to ${user.email}`
+        })
+    } catch (error) {
+        // roll back and clear fields and save
+        user.forgotPasswordToken = undefined
+        user.forgotPasswordExpiry=  undefined
+        throw new customError(err.message || 'email sent failure ',500)
+        
+    }
+
+})
