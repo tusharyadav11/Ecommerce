@@ -1,9 +1,10 @@
-import user from "../models/user";
+import crypto from "crypto"
 import user from "../models/user";
 import User from "../models/user";
 import asynchandler from '../services/asynchandler'
 import customError from '../utils/customError'
 import mailhelper from '../utils/mailhelper'  
+import { error } from "console";
 export const cookieOptions= {
     expires: new Date(Date.now()+ 3*24*60*60*1000),
     httpOnly: true
@@ -108,5 +109,38 @@ export const forgotPassword= asynchandler(async(req,res)=>{
         throw new customError(err.message || 'email sent failure ',500)
         
     }
+
+})
+
+export const resetpassword = asynchandler(async (req,res)=>{
+const {token: resettoken}= req.params
+const {password, confirmPassword}= req.body
+
+const resetpasswordtoken=crypto.createHash('sha256').update(resettoken).digest('hex')
+
+const user=await User.findOne({forgotPasswordToken :resetpasswordtoken,
+   forgotPasswordExpiry: {$gt : Date.now()}
+})
+if(!user){
+    throw new customError("password token is invalid or expired",400) 
+}
+if(password!= confirmPassword){
+    throw new customError("password and confirmpassword does not match",400)
+}
+user.password= password 
+user.forgotPasswordToken= undefined
+user.forgotPasswordExpiry= undefined
+await user.save()
+
+// create token and send as response to the user as it is optional
+const token = user.getJwtToken()
+user.password= undefined
+
+// helper method for the coookie
+res.cookie("token",token,cookieOptions)
+res.status(200).json({
+    success: true,
+    user
+})
 
 })
