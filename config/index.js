@@ -15,7 +15,9 @@ const config={
         S3_ACCESS_KEY : process.env.S3_ACCESS_KEY,
         S3_SECRET_KEY :  process.env.S3_SECRET_KEY ,
         S3_REGION:       process.env.S3_REGION,
-        S3_BUCKET_NAME:  process.env.S3_BUCKET_NAME
+        S3_BUCKET_NAME:  process.env.S3_BUCKET_NAME,
+        RAZORPAY_KEY_ID: process.env.RAZORPAY_KEY_ID,
+        RAZORPAY_SECRET_KEY: process.env.RAZORPAY_SECRET_KEY
          
 
 }
