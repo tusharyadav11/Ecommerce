@@ -7,6 +7,7 @@ import asynchandler from '../services/asynchandler'
 import customError from '../utils/customError'
 import s3 from '../config/s3.config'
 import { config } from 'dotenv'
+import product from '../models/product'
 
 export const addProduct = asynchandler(async (req,res)=>{
     const form= formidable({
@@ -63,4 +64,19 @@ export const addProduct = asynchandler(async (req,res)=>{
             
         }
     }
+})
+
+
+export const getAllProducts = asynchandler(async (req,res)=>{
+   const {id: productId}= req.params;
+   const product = await Product.findById({})
+   if(!product){
+    throw new customError("products does not exists",404)
+   }
+
+    res.status(200).json({
+        success: true,
+        product
+      })
+
 })
